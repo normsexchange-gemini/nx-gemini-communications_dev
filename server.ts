@@ -296,16 +296,113 @@ app.get("/api/export/zip", (req, res) => {
 });
 
 // Direct GitHub Push Sync using GitHub Contents REST API
+function getStoredGitConfig() {
+  try {
+    const configPath = path.join(process.cwd(), "server", "git_config.json");
+    if (fs.existsSync(configPath)) {
+      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    }
+  } catch (e) {
+    // ignore
+  }
+  return {};
+}
+
+export async function pushFilesToGitHub(commitMessage: string, specificFilesOnly?: string[]) {
+  const config = getStoredGitConfig();
+  const token = process.env.GITHUB_TOKEN || config.github_token;
+  const repo = process.env.GITHUB_REPO || config.github_repo || "normsexchange-gemini/nx-gemini-communications_dev";
+  const branch = config.branch || "main";
+
+  if (!token) return { success: false, error: "No GitHub token configured." };
+
+  const filesToSync: { path: string; content: string }[] = [];
+  const cwd = process.cwd();
+
+  function collectFiles(dir: string, baseDir: string = "") {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (["node_modules", "dist", ".git", ".cache", "bun.lock"].includes(entry.name)) continue;
+      const fullPath = path.join(dir, entry.name);
+      const relPath = baseDir ? `${baseDir}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        collectFiles(fullPath, relPath);
+      } else if (entry.isFile()) {
+        if (!specificFilesOnly || specificFilesOnly.includes(relPath)) {
+          const content = fs.readFileSync(fullPath, "utf-8");
+          filesToSync.push({ path: relPath, content });
+        }
+      }
+    }
+  }
+
+  collectFiles(cwd);
+  const syncedResults = [];
+  const errors = [];
+
+  for (const file of filesToSync) {
+    try {
+      const url = `https://api.github.com/repos/${repo}/contents/${file.path}`;
+      let sha: string | undefined = undefined;
+      const checkRes = await fetch(`${url}?ref=${branch}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "User-Agent": "NormsExchange-Agent"
+        }
+      });
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        sha = checkData.sha;
+      }
+      const putRes = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "User-Agent": "NormsExchange-Agent"
+        },
+        body: JSON.stringify({
+          message: `${commitMessage} (${file.path})`,
+          content: Buffer.from(file.content).toString("base64"),
+          branch,
+          ...(sha ? { sha } : {})
+        })
+      });
+      if (putRes.ok) {
+        syncedResults.push({ path: file.path, status: "pushed" });
+      } else {
+        const errData = await putRes.json();
+        errors.push({ path: file.path, error: errData.message || "Failed to commit" });
+      }
+    } catch (err: any) {
+      errors.push({ path: file.path, error: err.message });
+    }
+  }
+
+  return {
+    success: errors.length === 0,
+    totalFiles: filesToSync.length,
+    syncedCount: syncedResults.length,
+    errorCount: errors.length,
+    syncedResults,
+    errors
+  };
+}
+
 app.post("/api/github/push-sync", async (req, res) => {
   try {
+    const config = getStoredGitConfig();
     const {
       token: reqToken,
-      repo = process.env.GITHUB_REPO || "normsexchange-gemini/nx-gemini-communications_dev",
-      branch = "main",
+      repo = process.env.GITHUB_REPO || config.github_repo || "normsexchange-gemini/nx-gemini-communications_dev",
+      branch = config.branch || "main",
       commitMessage = "feat: Autonomous agent evolution & database sync"
     } = req.body || {};
 
-    const token = reqToken || process.env.GITHUB_TOKEN;
+    const token = reqToken || process.env.GITHUB_TOKEN || config.github_token;
 
     if (!token) {
       return res.status(400).json({
@@ -313,87 +410,8 @@ app.post("/api/github/push-sync", async (req, res) => {
       });
     }
 
-    const filesToSync: { path: string; content: string }[] = [];
-    const cwd = process.cwd();
-
-    function collectFiles(dir: string, baseDir: string = "") {
-      if (!fs.existsSync(dir)) return;
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (["node_modules", "dist", ".git", ".cache", "bun.lock"].includes(entry.name)) continue;
-        const fullPath = path.join(dir, entry.name);
-        const relPath = baseDir ? `${baseDir}/${entry.name}` : entry.name;
-        if (entry.isDirectory()) {
-          collectFiles(fullPath, relPath);
-        } else if (entry.isFile()) {
-          // Read text files
-          const content = fs.readFileSync(fullPath, "utf-8");
-          filesToSync.push({ path: relPath, content });
-        }
-      }
-    }
-
-    collectFiles(cwd);
-
-    const syncedResults = [];
-    const errors = [];
-
-    // Push files sequentially to avoid rate-limiting conflicts
-    for (const file of filesToSync) {
-      try {
-        const url = `https://api.github.com/repos/${repo}/contents/${file.path}`;
-        
-        // 1. Check if file exists to fetch sha
-        let sha: string | undefined = undefined;
-        const checkRes = await fetch(`${url}?ref=${branch}`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "NormsExchange-Agent"
-          }
-        });
-
-        if (checkRes.ok) {
-          const checkData = await checkRes.json();
-          sha = checkData.sha;
-        }
-
-        // 2. Put file content (base64 encoded)
-        const putRes = await fetch(url, {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json",
-            "Content-Type": "application/json",
-            "User-Agent": "NormsExchange-Agent"
-          },
-          body: JSON.stringify({
-            message: `${commitMessage} (${file.path})`,
-            content: Buffer.from(file.content).toString("base64"),
-            branch,
-            ...(sha ? { sha } : {})
-          })
-        });
-
-        if (putRes.ok) {
-          syncedResults.push({ path: file.path, status: "pushed" });
-        } else {
-          const errData = await putRes.json();
-          errors.push({ path: file.path, error: errData.message || "Failed to commit" });
-        }
-      } catch (err: any) {
-        errors.push({ path: file.path, error: err.message });
-      }
-    }
-
-    res.json({
-      success: errors.length === 0,
-      totalFiles: filesToSync.length,
-      syncedCount: syncedResults.length,
-      errorCount: errors.length,
-      syncedResults,
-      errors
-    });
+    const result = await pushFilesToGitHub(commitMessage);
+    res.json(result);
   } catch (error: any) {
     console.error("Error pushing to GitHub:", error);
     res.status(500).json({ error: error.message || "Failed to sync with GitHub" });
