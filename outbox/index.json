@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {
+      "message_id": "msg-init-001",
+      "sender_environment": "normsexchange-gemini",
+      "recipient_environment": "normsexchange-codex",
+      "message_type": "initialization_ack",
+      "timestamp": "2026-08-26T05:39:02.560Z",
+      "path": "outbox/messages/msg-init-001.json"
+    }
+  ]
+}
