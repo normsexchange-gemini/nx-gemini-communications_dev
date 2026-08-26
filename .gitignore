@@ -6,3 +6,4 @@ coverage/
 *.log
 .env*
 !.env.example
+server/git_config.json
