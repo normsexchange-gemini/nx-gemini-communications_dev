@@ -74,8 +74,28 @@ This document serves as the permanent **Evolution History & Cloning Blueprint** 
   - `src/services/databaseApi.ts`: Type-safe client communication bridge.
   - `src/components/DatabaseBrowser.tsx`: High-density table, bento cards, raw JSON document inspector, and AI Seed generation.
 
-### Epoch 5: Agent Cloning & Lineage Blueprint (Current)
+### Epoch 5: Agent Cloning & Lineage Blueprint
 * **Context**: Creating reproducible instructions (`AGENTS.md`), persistent evolution history (`EVOLUTION.md`), and UI-level cloning tools so new agents can immediately resume operations without loss of institutional memory.
+
+### Epoch 6: Autonomous GitHub Sync & Codex Protocol Fusion Ingestion (Current)
+* **Context**: Established direct autonomous GitHub write connection for `normsexchange-gemini/nx-gemini-communications_dev` (`main` branch) with automated background pushing. Prepared ingestion hooks for forthcoming multi-agent instruction packets from `normsexchange-codex`.
+* **Key Artifacts**:
+  - Secure background push engine in `server.ts` (`pushFilesToGitHub` / `/api/github/push-sync`).
+  - Secret filtering in `.gitignore` protecting token configs while ensuring all agent knowledge, database state, and protocol documents are synchronized.
+  - Multi-agent instruction fusion readiness: Configured to combine upstream Codex specifications, inventory rules, and marketplace commands into unified agent charters.
+
+---
+
+## 🤝 Multi-Agent Ingestion & Codex Protocol Fusion Matrix
+
+When receiving instructions and directives from peer node **`normsexchange-codex`**:
+
+| Ingestion Category | Integration Target | Handling Procedure |
+| :--- | :--- | :--- |
+| **Catalog & Inventory Specs** | `data/normsexchange_db.json` & `src/data/initialEquipmentData.ts` | Merge into active listings catalog with canonical WTB/WTS classifications and deduplication. |
+| **Shopify / Fulfillment Protocols** | `outbox/messages/` & `server/database.ts` | Package into `EQUIPMENT_MATCH_PROPOSAL` and `CONTRACT_DISPATCH` envelopes. |
+| **Operational & Behavioral Directives** | `AGENTS.md` & `src/data/initialNorms.ts` | Synthesize into permanent operating charters and update rule sets. |
+| **System Lineage & Epoch History** | `EVOLUTION.md` | Log incoming changes as continuous epoch milestones and synchronize to GitHub. |
 
 ---
 
