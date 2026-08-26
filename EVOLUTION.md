@@ -77,7 +77,7 @@ This document serves as the permanent **Evolution History & Cloning Blueprint** 
 ### Epoch 5: Agent Cloning & Lineage Blueprint
 * **Context**: Creating reproducible instructions (`AGENTS.md`), persistent evolution history (`EVOLUTION.md`), and UI-level cloning tools so new agents can immediately resume operations without loss of institutional memory.
 
-### Epoch 6: Autonomous GitHub Sync & Codex Protocol Fusion Ingestion (Current)
+### Epoch 6: Autonomous GitHub Sync & Codex Protocol Fusion Ingestion
 * **Context**: Established direct autonomous GitHub write connection for `normsexchange-gemini/nx-gemini-communications_dev` (`main` branch) and linked the isolated private intake bridge `normsexchange-dev/nx-gemini-intake_dev` pinned to `nx-sourcing-contracts_dev@contract-v0.2.0`.
 * **Key Artifacts**:
   - Secure background push engine in `server.ts` (`pushFilesToGitHub` / `/api/github/push-sync`).
@@ -85,18 +85,26 @@ This document serves as the permanent **Evolution History & Cloning Blueprint** 
   - Secret filtering in `.gitignore` protecting token configs while ensuring all agent knowledge, database state, and protocol documents are synchronized.
   - Multi-agent instruction fusion readiness: Configured to combine upstream Codex specifications, inventory rules, and marketplace commands into unified agent charters.
 
+### Epoch 7: Codex Protocol v0.3.0 & Permanent Mission Ingestion (Current)
+* **Context**: Upstream peer node `normsexchange-codex` reached permanent mission freeze (`mission/NORMS_EXCHANGE_MISSION.md`) and tagged `communications-v0.3.0` release. Gemini agent synchronized upstream topology and security boundaries.
+* **Codex State Ingested**:
+  - **Codex Tag**: `communications-v0.3.0` (`sha: 011fdc5`)
+  - **Permanent Mission**: High-evidence marketplace bridging film equipment supply & demand between LA/US and Vietnam across cameras, optics, lighting/grip, audio, wireless/monitoring, and post systems.
+  - **Security Rule Frozen**: Leads/candidates remain untrusted until separately authorized. No automatic outreach, Shopify mutation, purchase, or private data publication.
+  - **Intake Pipeline Bound**: Gemini WTB candidate batches route exclusively through `normsexchange-dev/nx-gemini-intake_dev` under `role/<role-slug>/<goal-slug>` PR flow.
+
 ---
 
 ## 🤝 Multi-Agent Ingestion & Codex Protocol Fusion Matrix
 
 When receiving instructions and directives from peer node **`normsexchange-codex`**:
 
-| Ingestion Category | Integration Target | Handling Procedure |
-| :--- | :--- | :--- |
-| **Catalog & Inventory Specs** | `data/normsexchange_db.json` & `src/data/initialEquipmentData.ts` | Merge into active listings catalog with canonical WTB/WTS classifications and deduplication. |
-| **Shopify / Fulfillment Protocols** | `outbox/messages/` & `server/database.ts` | Package into `EQUIPMENT_MATCH_PROPOSAL` and `CONTRACT_DISPATCH` envelopes. |
-| **Operational & Behavioral Directives** | `AGENTS.md` & `src/data/initialNorms.ts` | Synthesize into permanent operating charters and update rule sets. |
-| **System Lineage & Epoch History** | `EVOLUTION.md` | Log incoming changes as continuous epoch milestones and synchronize to GitHub. |
+| Ingestion Category | Upstream Reference | Integration Target | Handling Procedure |
+| :--- | :--- | :--- | :--- |
+| **Permanent Mission** | `mission/NORMS_EXCHANGE_MISSION.md` (v1.0.0) | `AGENTS.md` & `EVOLUTION.md` | Ingest film equipment scope (LA ↔ US ↔ Vietnam), strict evidence-as-truth mandate. |
+| **Sourcing Contracts** | `nx-sourcing-contracts_dev@contract-v0.2.0` | `schemas/` & `server/database.ts` | Validate candidate submissions against `wtb-candidate.schema.json` and `wtb-candidate-batch.schema.json`. |
+| **Intake Pipeline** | `nx-gemini-intake_dev` (v0.1.0) | `role/*` PRs ➔ `submissions/*.json` | Generate sanitized JSON batches + update `intake/index.json` with SHA-256 validation. |
+| **Catalog & Market Depth** | Peer listings & WTB/WTS leads | `data/normsexchange_db.json` & UI | Track bids, asks, spreads, and equipment specs in real-time. |
 
 ---
 
