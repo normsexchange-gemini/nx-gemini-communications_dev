@@ -419,6 +419,77 @@ app.post("/api/github/push-sync", async (req, res) => {
   }
 });
 
+/* =========================================================================
+   CODEX INTAKE GATEWAY (normsexchange-dev/nx-gemini-intake_dev)
+   ========================================================================= */
+
+// Check status of isolated Codex intake repo
+app.get("/api/intake/status", async (_req, res) => {
+  try {
+    const config = getStoredGitConfig();
+    const token = process.env.CODEX_INTAKE_TOKEN || config.codex_intake_token;
+    const repo = process.env.CODEX_INTAKE_REPO || config.codex_intake_repo || "normsexchange-dev/nx-gemini-intake_dev";
+
+    if (!token) {
+      return res.status(400).json({
+        connected: false,
+        error: "No Codex intake token configured."
+      });
+    }
+
+    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "NormsExchange-Gemini"
+      }
+    });
+
+    if (!repoRes.ok) {
+      const err = await repoRes.json();
+      return res.status(repoRes.status).json({ connected: false, error: err.message || "Failed to connect to intake repo" });
+    }
+
+    const repoData = await repoRes.json();
+
+    // Fetch intake index
+    const indexRes = await fetch(`https://api.github.com/repos/${repo}/contents/intake/index.json`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "NormsExchange-Gemini"
+      }
+    });
+
+    let indexData = { intake_version: "0.1.0", contract_version: "0.2.0", submissions: [] };
+    if (indexRes.ok) {
+      const raw = await indexRes.json();
+      if (raw.content) {
+        try {
+          indexData = JSON.parse(Buffer.from(raw.content, "base64").toString("utf-8"));
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+    }
+
+    res.json({
+      connected: true,
+      repository: repoData.full_name,
+      private: repoData.private,
+      default_branch: repoData.default_branch,
+      permissions: repoData.permissions,
+      contract_version: indexData.contract_version || "0.2.0",
+      intake_version: indexData.intake_version || "0.1.0",
+      submissions_count: (indexData.submissions || []).length,
+      submissions: indexData.submissions || []
+    });
+  } catch (error: any) {
+    console.error("Intake status error:", error);
+    res.status(500).json({ connected: false, error: error.message || "Intake status check failed" });
+  }
+});
+
 // AI Generate & Direct Insert new authentic equipment records into database
 app.post("/api/database/ai-seed", async (req, res) => {
   try {
