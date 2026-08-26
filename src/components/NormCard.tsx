@@ -1,0 +1,301 @@
+import React, { useState } from "react";
+import { Norm } from "../types";
+import { 
+  ThumbsUp, 
+  Plus, 
+  Check, 
+  AlertTriangle, 
+  Copy, 
+  ShieldAlert, 
+  Zap, 
+  Globe, 
+  ChevronDown, 
+  ChevronUp, 
+  MessageSquare,
+  Share2,
+  Bookmark,
+  ArrowUpRight
+} from "lucide-react";
+
+interface NormCardProps {
+  norm: Norm;
+  isInCharter: boolean;
+  onToggleCharter: (norm: Norm) => void;
+  onVote: (normId: string) => void;
+  onSelect: (norm: Norm) => void;
+}
+
+export const NormCard: React.FC<NormCardProps> = ({
+  norm,
+  isInCharter,
+  onToggleCharter,
+  onVote,
+  onSelect,
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const getCategoryColor = (cat: string) => {
+    switch (cat) {
+      case "Communication":
+        return "bg-blue-500/10 text-blue-400 border-blue-500/30";
+      case "Engineering":
+        return "bg-cyan-500/10 text-cyan-400 border-cyan-500/30";
+      case "Reciprocity & Social":
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+      case "Meetings & Time":
+        return "bg-purple-500/10 text-purple-400 border-purple-500/30";
+      case "Decision Making":
+        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
+      case "Cross-Cultural":
+        return "bg-rose-500/10 text-rose-400 border-rose-500/30";
+      case "Trade & Compliance":
+        return "bg-teal-500/10 text-teal-400 border-teal-500/30";
+      case "Leadership":
+        return "bg-indigo-500/10 text-indigo-400 border-indigo-500/30";
+      default:
+        return "bg-slate-500/10 text-slate-400 border-slate-500/30";
+    }
+  };
+
+  const getRiskBadge = (risk: "Low" | "Medium" | "High") => {
+    switch (risk) {
+      case "High":
+        return {
+          label: "HIGH RISK",
+          color: "bg-rose-950/60 text-rose-300 border-rose-800/60",
+        };
+      case "Medium":
+        return {
+          label: "MED RISK",
+          color: "bg-amber-950/60 text-amber-300 border-amber-800/60",
+        };
+      case "Low":
+        return {
+          label: "LOW RISK",
+          color: "bg-emerald-950/60 text-emerald-300 border-emerald-800/60",
+        };
+    }
+  };
+
+  const copySlackSnippet = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const snippet = `📋 *Team Operating Norm: ${norm.title}*\n⚡ *Trigger:* ${norm.triggerSituation}\n📜 *Rule:* ${norm.explicitRule}\n🛡️ *Remedy:* ${norm.violationRemedy}`;
+    navigator.clipboard.writeText(snippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const riskInfo = getRiskBadge(norm.frictionRisk);
+
+  return (
+    <div
+      id={`norm-card-${norm.id}`}
+      className={`group relative rounded-2xl border transition-all duration-200 glass-card ${
+        isInCharter 
+          ? "border-indigo-500 shadow-lg shadow-indigo-950/50" 
+          : "border-slate-800 hover:border-slate-700/80 shadow-md"
+      }`}
+    >
+      {/* Top Meta Bar */}
+      <div className="p-5 pb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className={`text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-lg border ${getCategoryColor(norm.category)}`}>
+            {norm.category}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${riskInfo.color}`}>
+              {riskInfo.label}
+            </span>
+          </div>
+        </div>
+
+        {/* Title & Tagline */}
+        <h3 
+          onClick={() => onSelect(norm)}
+          className="text-base sm:text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition-colors cursor-pointer leading-snug flex items-center justify-between"
+        >
+          <span>{norm.title}</span>
+          <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 text-indigo-400 transition-opacity shrink-0 ml-1" />
+        </h3>
+        <p className="text-xs sm:text-sm text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+          {norm.tagline}
+        </p>
+
+        {/* Concrete Operational Rule Block */}
+        <div className="mt-4 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2.5">
+          <div>
+            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400">
+              <Zap className="h-3 w-3" />
+              <span>Trigger Situation</span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              {norm.triggerSituation}
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-slate-800/60">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+              <span>Explicit Rule</span>
+            </div>
+            <p className="text-xs text-slate-200 mt-0.5 font-medium leading-relaxed">
+              {norm.explicitRule}
+            </p>
+          </div>
+        </div>
+
+        {/* Reciprocity & Clarity Meters */}
+        <div className="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
+          <div>
+            <div className="flex justify-between items-center text-[11px] text-slate-400 mb-1 font-mono">
+              <span>Reciprocity</span>
+              <span className="font-semibold text-emerald-400">{norm.reciprocityIndex}%</span>
+            </div>
+            <div className="h-1.5 w-full bg-slate-800/90 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all"
+                style={{ width: `${norm.reciprocityIndex}%` }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center text-[11px] text-slate-400 mb-1 font-mono">
+              <span>Clarity</span>
+              <span className="font-semibold text-indigo-400">{norm.clarityScore}%</span>
+            </div>
+            <div className="h-1.5 w-full bg-slate-800/90 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-500 rounded-full transition-all"
+                style={{ width: `${norm.clarityScore}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable Section (Remedy & Anti-patterns) */}
+        {isExpanded && (
+          <div className="mt-4 pt-3 border-t border-slate-800 space-y-3 text-xs animate-in fade-in duration-150">
+            <div>
+              <span className="font-semibold text-emerald-400 block mb-0.5 font-mono text-[11px] uppercase tracking-wider">
+                🛡️ Graceful Violation Remedy
+              </span>
+              <p className="text-slate-300 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 leading-relaxed">
+                {norm.violationRemedy}
+              </p>
+            </div>
+
+            {norm.antiPatterns && norm.antiPatterns.length > 0 && (
+              <div>
+                <span className="font-semibold text-rose-400 block mb-1 font-mono text-[11px] uppercase tracking-wider">
+                  🚫 Anti-Patterns Prevented
+                </span>
+                <ul className="list-disc pl-4 space-y-0.5 text-slate-400">
+                  {norm.antiPatterns.map((ap, idx) => (
+                    <li key={idx}>{ap}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {norm.culturalContextNotes && (
+              <div>
+                <span className="font-semibold text-amber-300 block mb-0.5 font-mono text-[11px] uppercase tracking-wider">
+                  🌍 Cultural Exchange Context
+                </span>
+                <p className="text-slate-400 italic bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+                  {norm.culturalContextNotes}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Bar Actions */}
+      <div className="px-5 py-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between rounded-b-2xl gap-2">
+        {/* Author / Source */}
+        <div className="flex items-center gap-2">
+          <img
+            src={norm.author.avatar}
+            alt={norm.author.name}
+            className="h-5 w-5 rounded-full object-cover border border-slate-700"
+            referrerPolicy="no-referrer"
+          />
+          <span className="text-[11px] text-slate-400 truncate max-w-[100px] sm:max-w-[130px] font-sans">
+            {norm.author.name}
+          </span>
+        </div>
+
+        {/* Actions Group */}
+        <div className="flex items-center gap-1.5">
+          {/* Copy Slack */}
+          <button
+            onClick={copySlackSnippet}
+            title="Copy as Slack / Discord ready rule"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+          >
+            {copied ? (
+              <span className="text-[10px] text-emerald-400 font-mono font-semibold px-1">Copied!</span>
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+          </button>
+
+          {/* Upvote */}
+          <button
+            id={`vote-btn-${norm.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onVote(norm.id);
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
+              norm.userVoted
+                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            }`}
+          >
+            <ThumbsUp className={`h-3 w-3 ${norm.userVoted ? "fill-amber-300" : ""}`} />
+            <span>{norm.votesCount}</span>
+          </button>
+
+          {/* Expand Details Toggle */}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+          >
+            {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+
+          {/* Adopt to Charter Button */}
+          <button
+            id={`adopt-btn-${norm.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCharter(norm);
+            }}
+            className={`flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+              isInCharter
+                ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/60 hover:bg-rose-950/40 hover:text-rose-300 hover:border-rose-700"
+                : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30"
+            }`}
+          >
+            {isInCharter ? (
+              <>
+                <Check className="h-3 w-3" />
+                <span>In Charter</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-3 w-3" />
+                <span>Adopt</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
