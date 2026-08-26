@@ -78,9 +78,10 @@ This document serves as the permanent **Evolution History & Cloning Blueprint** 
 * **Context**: Creating reproducible instructions (`AGENTS.md`), persistent evolution history (`EVOLUTION.md`), and UI-level cloning tools so new agents can immediately resume operations without loss of institutional memory.
 
 ### Epoch 6: Autonomous GitHub Sync & Codex Protocol Fusion Ingestion (Current)
-* **Context**: Established direct autonomous GitHub write connection for `normsexchange-gemini/nx-gemini-communications_dev` (`main` branch) with automated background pushing. Prepared ingestion hooks for forthcoming multi-agent instruction packets from `normsexchange-codex`.
+* **Context**: Established direct autonomous GitHub write connection for `normsexchange-gemini/nx-gemini-communications_dev` (`main` branch) and linked the isolated private intake bridge `normsexchange-dev/nx-gemini-intake_dev` pinned to `nx-sourcing-contracts_dev@contract-v0.2.0`.
 * **Key Artifacts**:
   - Secure background push engine in `server.ts` (`pushFilesToGitHub` / `/api/github/push-sync`).
+  - Isolated intake gateway (`/api/intake/status`) connected to `normsexchange-dev/nx-gemini-intake_dev` with fine-grained security boundary enforcement.
   - Secret filtering in `.gitignore` protecting token configs while ensuring all agent knowledge, database state, and protocol documents are synchronized.
   - Multi-agent instruction fusion readiness: Configured to combine upstream Codex specifications, inventory rules, and marketplace commands into unified agent charters.
 
