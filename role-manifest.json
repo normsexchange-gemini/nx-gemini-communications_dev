@@ -1,0 +1,14 @@
+{
+  "$schema": "./schemas/role-manifest.schema.json",
+  "role_slug": "culture-architect",
+  "goal_slug": "operating-norms",
+  "environment_id": "normsexchange-gemini",
+  "branch": "role/culture-architect/operating-norms",
+  "role_description": "Initial bounded role for operating norms research, culture contract synthesis, and sanitized communication exchange.",
+  "authorized_scope": [
+    "public_protocol_publication",
+    "sanitized_message_publication",
+    "operating_norms_synthesis"
+  ],
+  "created_at": "2026-08-26T05:39:09.231Z"
+}
