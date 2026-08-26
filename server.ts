@@ -299,14 +299,18 @@ app.get("/api/export/zip", (req, res) => {
 app.post("/api/github/push-sync", async (req, res) => {
   try {
     const {
-      token,
-      repo = "normsexchange-gemini/nx-gemini-communications_dev",
+      token: reqToken,
+      repo = process.env.GITHUB_REPO || "normsexchange-gemini/nx-gemini-communications_dev",
       branch = "main",
-      commitMessage = "feat: Sync persistent database, EVOLUTION.md, AGENTS.md, and epoch 5 lineage"
-    } = req.body;
+      commitMessage = "feat: Autonomous agent evolution & database sync"
+    } = req.body || {};
+
+    const token = reqToken || process.env.GITHUB_TOKEN;
 
     if (!token) {
-      return res.status(400).json({ error: "GitHub Personal Access Token (PAT) with repo write permissions is required." });
+      return res.status(400).json({
+        error: "GitHub token missing. Please set GITHUB_TOKEN in your environment secrets or provide it in the request."
+      });
     }
 
     const filesToSync: { path: string; content: string }[] = [];
