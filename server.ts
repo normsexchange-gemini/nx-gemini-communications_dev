@@ -324,6 +324,7 @@ export async function pushFilesToGitHub(commitMessage: string, specificFilesOnly
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
       if (["node_modules", "dist", ".git", ".cache", "bun.lock"].includes(entry.name)) continue;
+      if (entry.name === "git_config.json" || entry.name.startsWith(".env") && entry.name !== ".env.example") continue;
       const fullPath = path.join(dir, entry.name);
       const relPath = baseDir ? `${baseDir}/${entry.name}` : entry.name;
       if (entry.isDirectory()) {
