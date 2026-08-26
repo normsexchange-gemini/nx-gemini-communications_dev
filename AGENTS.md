@@ -50,3 +50,4 @@ When spinning up a new agent or subagent from this repository:
 * `/api/database/outbox`: Outbound contract queue for external agent handoff.
 * `/api/sourcing/scan`: Gemini-powered autonomous web crawler and entity extractor.
 * `/api/arbitrage/contract`: Formal sourcing contract generator.
+* `/api/intake/status`: Private Codex intake health & contract v0.2.0 verification bridge (`normsexchange-dev/nx-gemini-intake_dev`).
