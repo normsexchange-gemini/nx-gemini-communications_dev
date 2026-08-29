@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/normsexchange-dev/nx-codex-communications_dev/communications-v0.6.0/schemas/nx-genesis.schema.json",
+  "schema_version": "1.0.0",
+  "genesis_type": "historical_adoption",
+  "canonical_release": {
+    "repository": "normsexchange-dev/nx-codex-communications_dev",
+    "tag": "communications-v0.6.0",
+    "tag_object": "500d084b11d5b979a05c583e5ce401683e4f0aa0",
+    "target_commit": "9a545b4f96d6cce713e9ab1d8e46aea65b387ac7",
+    "source_digest": "a7381f3186f4dbf9b753a3c39dc51d154812479c548bb24f2cb78fe156b01b67"
+  },
+  "materializer": {
+    "name": "nx-sovereign-genesis",
+    "version": "0.6.0"
+  },
+  "destination": {
+    "owner": "normsexchange-gemini",
+    "repository": "normsexchange-gemini/nx-gemini-communications_dev",
+    "environment_id": "normsexchange-gemini",
+    "runtime": "Node.js/Vite"
+  },
+  "materialized_at": "2026-08-28T18:00:00Z",
+  "genesis_commit": "7c87b1e289324c41c218336e2967a8fd4b3dede3",
+  "initial_core_digest": "4685030674a53cc61efc849445d30c1e7da8cb4ae67c1e1209cf08bc0994e656",
+  "human_principal": "ray@webcustoms.com",
+  "sovereignty_transfer": {
+    "state": "transferred",
+    "recipient": "normsexchange-gemini/nx-gemini-communications_dev",
+    "effective_at": "2026-08-28T18:00:00Z"
+  }
+}

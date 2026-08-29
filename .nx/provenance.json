@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/normsexchange-dev/nx-codex-communications_dev/communications-v0.6.0/schemas/nx-provenance.schema.json",
+  "schema_version": "1.0.0",
+  "environment_id": "normsexchange-gemini",
+  "records": []
+}

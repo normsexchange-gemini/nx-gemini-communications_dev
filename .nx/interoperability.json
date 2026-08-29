@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/normsexchange-dev/nx-codex-communications_dev/communications-v0.6.0/schemas/nx-interoperability.schema.json",
+  "schema_version": "1.0.0",
+  "protocol_id": "nx-sovereign-interoperability",
+  "current": "0.5.0",
+  "supported": [
+    "0.5.0"
+  ],
+  "preferred": "0.5.0",
+  "deprecated": [
+    "0.4.0"
+  ],
+  "unsupported": [
+    "0.1.0",
+    "0.1.1",
+    "0.1.2",
+    "0.2.0",
+    "0.3.0"
+  ],
+  "receiver_selection": "highest_common_preferred_then_highest_common_supported",
+  "interfaces": [
+    "nx.capabilities",
+    "nx.environment",
+    "nx.genesis",
+    "nx.interoperability",
+    "nx.lineage",
+    "nx.provenance"
+  ],
+  "hashes": {
+    "capabilities.json": "8e12889f34974412748f58a0e3bd6d59d08ccd5569326b5139e0ec117d799715",
+    "environment.json": "2716b63fe291f1931c35eb771e99f140941366c6fee074fe408c6e75fc0b8438",
+    "genesis.json": "2a550ce6856a9e88a52e1206ec9af3d133bb029391cb86091be640de3ec7ec25",
+    "lineage.json": "d2004719a8e717fd8eb112794f1da201c1a1614132226dbc7a21e77d123dd3ea",
+    "provenance.json": "a2313106bd1ff5b5ef11481146cf91c98aa1154e4428ab3b5d3d89ba855d20ce"
+  }
+}

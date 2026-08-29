@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/normsexchange-dev/nx-codex-communications_dev/communications-v0.6.0/schemas/nx-lineage.schema.json",
+  "schema_version": "1.0.0",
+  "lineage_type": "direct",
+  "current": {
+    "environment_id": "normsexchange-gemini",
+    "repository": "normsexchange-gemini/nx-gemini-communications_dev"
+  },
+  "canonical_genesis": {
+    "repository": "normsexchange-dev/nx-codex-communications_dev",
+    "tag": "communications-v0.6.0",
+    "target_commit": "9a545b4f96d6cce713e9ab1d8e46aea65b387ac7"
+  },
+  "parent": null,
+  "divergence": {
+    "allowed": true,
+    "declared": false,
+    "description": null
+  },
+  "amendments": [
+    {
+      "type": "historical_genesis_adoption",
+      "reference": "Legacy Sovereign Gemini Environment"
+    }
+  ],
+  "descendants": []
+}
