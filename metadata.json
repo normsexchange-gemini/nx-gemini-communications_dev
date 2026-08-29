@@ -1,0 +1,6 @@
+{
+  "name": "NormsExchange",
+  "description": "High-performance equipment exchange and autonomous sourcing console with inferred seller intelligence, WTB/WTS match arbitrator, and NX protocol outbox.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

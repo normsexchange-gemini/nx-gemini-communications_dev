@@ -1,0 +1,517 @@
+import React, { useState } from "react";
+import { 
+  X, 
+  Building2, 
+  MapPin, 
+  Mail, 
+  Phone, 
+  Globe, 
+  ShieldCheck, 
+  ExternalLink, 
+  Cpu, 
+  TrendingUp, 
+  FileCode, 
+  CheckCircle2,
+  Calendar,
+  Sparkles,
+  Layers,
+  ArrowRight,
+  Copy,
+  Check,
+  AlertTriangle,
+  Ban,
+  Archive,
+  RefreshCw,
+  Trash2,
+  Bot
+} from "lucide-react";
+import { EquipmentListing } from "../types";
+import { getEquipmentImageUrl } from "../utils/equipmentImages";
+import { 
+  getOriginalListingUrl, 
+  getOriginalSourceDomain, 
+  getLinkHealthBadge, 
+  isListingPrunedOrSold 
+} from "../utils/sourceLinks";
+import { databaseApi } from "../services/databaseApi";
+
+interface EquipmentDetailModalProps {
+  listing: EquipmentListing | null;
+  onClose: () => void;
+  onAnalyzeMatch: (listing: EquipmentListing) => void;
+  onListingUpdated?: (listing: EquipmentListing) => void;
+  onListingDeleted?: (id: string) => void;
+}
+
+export const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({
+  listing,
+  onClose,
+  onAnalyzeMatch,
+  onListingUpdated,
+  onListingDeleted,
+}) => {
+  if (!listing) return null;
+
+  const [currentListing, setCurrentListing] = useState<EquipmentListing>(listing);
+  const [copied, setCopied] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [customReason, setCustomReason] = useState("");
+  const [showStatusOptions, setShowStatusOptions] = useState(false);
+
+  const isWTB = currentListing.type === "WTB";
+  const imageUrl = getEquipmentImageUrl(currentListing);
+  const sourceUrl = getOriginalListingUrl(currentListing);
+  const sourceDomain = getOriginalSourceDomain(currentListing);
+  const health = getLinkHealthBadge(currentListing);
+  const isPruned = isListingPrunedOrSold(currentListing);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(sourceUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleStatusChange = async (status: "Active" | "Sold" | "Delisted" | "Archived", reason?: string) => {
+    try {
+      setIsUpdatingStatus(true);
+      const updated = await databaseApi.markListingStatus(currentListing.id, status, reason);
+      setCurrentListing(updated);
+      onListingUpdated?.(updated);
+      setShowStatusOptions(false);
+    } catch (err: any) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Permanently remove ${currentListing.title} from database?`)) return;
+    try {
+      setIsUpdatingStatus(true);
+      await databaseApi.deleteListing(currentListing.id);
+      onListingDeleted?.(currentListing.id);
+      onClose();
+    } catch (err: any) {
+      console.error("Failed to delete listing:", err);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-3xl rounded-2xl border border-slate-700/80 bg-slate-900 shadow-2xl p-6 md:p-8 space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-5 top-5 rounded-lg border border-slate-700 bg-slate-800 p-2 text-slate-400 hover:bg-slate-700 hover:text-white z-10"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        {/* Hero Image Showcase */}
+        <div className="relative h-64 md:h-72 w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+          <img
+            src={imageUrl}
+            alt={`${currentListing.make} ${currentListing.model}`}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = getEquipmentImageUrl({
+                category: currentListing.category,
+                make: currentListing.make,
+                model: currentListing.model,
+              });
+            }}
+            className={`h-full w-full object-cover object-center ${isPruned ? 'grayscale-[60%] opacity-75' : ''}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+          {/* Overlaid Badges */}
+          <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pr-12">
+            <span
+              className={`rounded px-2.5 py-1 text-xs font-mono font-bold uppercase backdrop-blur-md shadow-md ${
+                isWTB
+                  ? "bg-emerald-950/90 text-emerald-300 border border-emerald-500/40"
+                  : "bg-cyan-950/90 text-cyan-300 border border-cyan-500/40"
+              }`}
+            >
+              {isWTB ? "● WTB (BUY DEMAND)" : "● WTS (SOURCED SUPPLY)"}
+            </span>
+
+            {/* Auto Generated Badge */}
+            {currentListing.isAutoGenerated !== false && (
+              <span className="inline-flex items-center gap-1 rounded bg-purple-950/90 border border-purple-500/50 px-2.5 py-1 text-xs font-mono font-bold text-purple-300 backdrop-blur-md shadow-md">
+                <Bot className="h-3.5 w-3.5 text-purple-400" />
+                <span>⚡ AUTO GENERATED</span>
+              </span>
+            )}
+
+            {/* Status / Health Badge */}
+            <span className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-mono font-bold border backdrop-blur-md shadow-md ${health.badgeClass}`}>
+              <span className={`h-2 w-2 rounded-full ${health.dotClass}`} />
+              {health.label}
+            </span>
+
+            <span className="rounded border border-slate-700/80 bg-slate-900/90 px-2.5 py-1 text-xs font-medium text-slate-200 backdrop-blur-md">
+              {currentListing.category}
+            </span>
+          </div>
+
+          <div className="absolute bottom-4 left-4 right-4">
+            <h2 className={`text-2xl font-bold leading-tight drop-shadow-md ${isPruned ? 'text-slate-200 line-through' : 'text-white'}`}>
+              {currentListing.title}
+            </h2>
+            <div className="mt-1 flex flex-wrap items-center gap-3 font-mono text-xs text-slate-300">
+              <span>Make: <strong className="text-white">{currentListing.make}</strong></span>
+              <span>•</span>
+              <span>Model: <strong className="text-white">{currentListing.model}</strong></span>
+              {currentListing.year && (
+                <>
+                  <span>•</span>
+                  <span>Year: <strong className="text-white">{currentListing.year}</strong></span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Audit / Pruned Banner if applicable */}
+        {currentListing.prunedReason && (
+          <div className="rounded-xl border border-amber-500/40 bg-amber-950/40 p-3.5 text-xs text-amber-200 flex items-start gap-2.5 font-mono">
+            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-amber-300">Data Hygiene Audit Notice:</div>
+              <p className="mt-0.5">{currentListing.prunedReason}</p>
+              {currentListing.lastVerifiedAt && (
+                <div className="mt-1 text-[10px] text-amber-400/80">
+                  Last verified: {isNaN(new Date(currentListing.lastVerifiedAt).getTime()) ? "Recently" : new Date(currentListing.lastVerifiedAt).toLocaleString()}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* DIRECT ORIGINAL LISTING LINK & MULTI-MARKETPLACE VERIFICATION PANEL */}
+        <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-cyan-300 font-semibold text-xs uppercase tracking-wider font-mono">
+              <Globe className="h-4 w-4 text-cyan-400" />
+              <span>Live Equipment Source & Marketplace Deep Links</span>
+            </div>
+            <span className="rounded bg-cyan-900/60 px-2 py-0.5 text-[10px] font-mono text-cyan-300 border border-cyan-700/50">
+              Host: {sourceDomain}
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 min-w-0 flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/90 px-3 py-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 hover:underline truncate transition-colors"
+              title="Open source URL in new window"
+            >
+              <Globe className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+              <span className="truncate">{sourceUrl}</span>
+              <ExternalLink className="h-3 w-3 text-cyan-400 shrink-0 opacity-70" />
+            </a>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleCopyLink}
+                className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
+                title="Copy link to clipboard"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-slate-400" />}
+                <span>{copied ? "Copied" : "Copy"}</span>
+              </button>
+
+              <a
+                href={sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 py-2 text-xs font-bold text-white shadow-md transition-all"
+              >
+                <span>Open Marketplace Listing</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Cross-Marketplace Verifiers */}
+          <div className="pt-2 border-t border-cyan-500/20 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-mono text-slate-400">Search Live Inventory On:</span>
+            <a
+              href={`https://www.sharegrid.com/los-angeles/buy?q=${encodeURIComponent(`${currentListing.make} ${currentListing.model}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 text-[11px] font-mono text-cyan-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <span>ShareGrid LA</span>
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+            <a
+              href={`https://www.bhphotovideo.com/c/search?q=${encodeURIComponent(`${currentListing.make} ${currentListing.model}`)}&N=0`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 text-[11px] font-mono text-amber-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <span>B&H Used & Pro</span>
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+            <a
+              href={`https://cvp.com/shop?q=${encodeURIComponent(`${currentListing.make} ${currentListing.model}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 text-[11px] font-mono text-emerald-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <span>CVP Cinema</span>
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+            <a
+              href={`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${currentListing.make} ${currentListing.model}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 text-[11px] font-mono text-purple-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <span>eBay Pro Video</span>
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+            <a
+              href={`https://www.abelcine.com/search?q=${encodeURIComponent(`${currentListing.make} ${currentListing.model}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 text-[11px] font-mono text-blue-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <span>AbelCine</span>
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+          </div>
+        </div>
+
+        {/* Valuation & Comps Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-slate-800 bg-slate-950/80 p-4">
+          <div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">
+              {isWTB ? "Max Target Budget" : "Asking / Sourced Price"}
+            </div>
+            <div className="text-2xl font-bold font-mono text-white">
+              ${(currentListing.priceTarget ?? 0).toLocaleString()}{" "}
+              <span className="text-xs text-slate-400">{currentListing.currency || "USD"}</span>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Market Benchmark Comp</div>
+            <div className="text-lg font-semibold font-mono text-slate-300">
+              ${(currentListing.marketCompAverage ?? 0).toLocaleString()} USD
+            </div>
+            <div className="text-[10px] text-slate-500">Aggregated from historical sales & auctions</div>
+          </div>
+
+          <div>
+            <div className="text-[11px] font-mono text-slate-400 uppercase">Availability / SLA</div>
+            <div className="text-sm font-semibold font-mono text-cyan-300">
+              {currentListing.urgencyOrAvailability}
+            </div>
+            <div className="text-[10px] text-slate-500">Ready for inspection & crating</div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div>
+          <h3 className="text-xs font-mono text-slate-400 uppercase mb-1.5 font-bold">
+            Listing Scope & Operational Background
+          </h3>
+          <p className="text-sm text-slate-300 leading-relaxed bg-slate-950/50 p-3.5 rounded-lg border border-slate-800">
+            {currentListing.description}
+          </p>
+        </div>
+
+        {/* Technical Specs Grid */}
+        <div>
+          <h3 className="text-xs font-mono text-slate-400 uppercase mb-2 font-bold">
+            Complete Technical Specifications & Measured Diagnostics
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
+            {Object.entries(currentListing.specs).map(([key, val]) => (
+              <div
+                key={key}
+                className="flex items-baseline justify-between rounded border border-slate-800 bg-slate-950 p-2.5"
+              >
+                <span className="text-slate-400">{key}:</span>
+                <span className="text-cyan-300 font-semibold text-right max-w-[200px] truncate">
+                  {val}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Inferred Contact Dossier */}
+        <div className="rounded-xl border border-indigo-500/30 bg-slate-950 p-5 space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="flex items-center gap-2 text-indigo-300 font-semibold text-sm">
+              <Building2 className="h-4 w-4 text-indigo-400" />
+              <span>Inferred Entity & Sourcing Dossier</span>
+            </div>
+
+            <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-mono text-xs font-bold text-emerald-400 border border-emerald-500/30">
+              {currentListing.contact.inferenceConfidence}% INFERENCE CONFIDENCE
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono text-slate-300">
+            <div>
+              <span className="text-slate-500 block">Entity Name:</span>
+              <strong className="text-white text-sm">{currentListing.contact.entityName}</strong>
+            </div>
+
+            {currentListing.contact.contactPerson && (
+              <div>
+                <span className="text-slate-500 block">Identified Lead:</span>
+                <span className="text-slate-200">{currentListing.contact.contactPerson}</span>
+              </div>
+            )}
+
+            {currentListing.contact.email && (
+              <div>
+                <span className="text-slate-500 block">Email Channel:</span>
+                <span className="text-cyan-300">{currentListing.contact.email}</span>
+              </div>
+            )}
+
+            {currentListing.contact.phone && (
+              <div>
+                <span className="text-slate-500 block">Direct Phone:</span>
+                <span className="text-slate-200">{currentListing.contact.phone}</span>
+              </div>
+            )}
+
+            {currentListing.contact.location && (
+              <div>
+                <span className="text-slate-500 block">Geographic Location:</span>
+                <span className="text-slate-200">{currentListing.contact.location}</span>
+              </div>
+            )}
+
+            <div>
+              <span className="text-slate-500 block">Inference Method:</span>
+              <span className="text-indigo-400">{currentListing.contact.inferenceMethod}</span>
+            </div>
+          </div>
+
+          {currentListing.contact.notes && (
+            <div className="mt-2 text-[11px] text-slate-400 bg-slate-900 p-2 rounded border border-slate-800">
+              <strong className="text-slate-300 font-sans">Verification Notes: </strong>
+              {currentListing.contact.notes}
+            </div>
+          )}
+        </div>
+
+        {/* PRUNING & LIFECYCLE MANAGEMENT CONTROLS */}
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 font-mono text-xs text-slate-300 font-bold uppercase">
+              <RefreshCw className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Catalog Lifecycle & Pruning State</span>
+            </div>
+            <span className="font-mono text-xs text-slate-400">
+              Current: <strong className="text-white">{currentListing.status || "Active"}</strong>
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => handleStatusChange("Sold", "Marked as sold by operator")}
+              disabled={isUpdatingStatus || currentListing.status === "Sold"}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-mono font-medium transition-all ${
+                currentListing.status === "Sold"
+                  ? "border-amber-500 bg-amber-950 text-amber-200 cursor-default"
+                  : "border-amber-700/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60"
+              }`}
+            >
+              <Ban className="h-3 w-3" />
+              <span>Mark Sold</span>
+            </button>
+
+            <button
+              onClick={() => handleStatusChange("Delisted", "Listing removed from source marketplace (404/expired)")}
+              disabled={isUpdatingStatus || currentListing.status === "Delisted"}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-mono font-medium transition-all ${
+                currentListing.status === "Delisted"
+                  ? "border-rose-500 bg-rose-950 text-rose-200 cursor-default"
+                  : "border-rose-700/50 bg-rose-950/40 text-rose-300 hover:bg-rose-900/60"
+              }`}
+            >
+              <AlertTriangle className="h-3 w-3" />
+              <span>Mark Delisted (404)</span>
+            </button>
+
+            <button
+              onClick={() => handleStatusChange("Archived", "Soft-pruned and archived into historical storage")}
+              disabled={isUpdatingStatus || currentListing.status === "Archived"}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-mono font-medium transition-all ${
+                currentListing.status === "Archived"
+                  ? "border-slate-500 bg-slate-800 text-slate-200 cursor-default"
+                  : "border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
+              }`}
+            >
+              <Archive className="h-3 w-3" />
+              <span>Archive</span>
+            </button>
+
+            {isPruned && (
+              <button
+                onClick={() => handleStatusChange("Active", "Restored to active catalog")}
+                disabled={isUpdatingStatus}
+                className="flex items-center gap-1.5 rounded-lg border border-emerald-600/50 bg-emerald-950/50 px-3 py-1.5 text-xs font-mono font-bold text-emerald-300 hover:bg-emerald-900/60 transition-all"
+              >
+                <CheckCircle2 className="h-3 w-3" />
+                <span>Restore to Active</span>
+              </button>
+            )}
+
+            <button
+              onClick={handleDelete}
+              disabled={isUpdatingStatus}
+              className="flex items-center gap-1.5 rounded-lg border border-red-900/40 bg-red-950/30 px-3 py-1.5 text-xs font-mono text-red-400 hover:bg-red-900/60 hover:text-white ml-auto transition-all"
+            >
+              <Trash2 className="h-3 w-3" />
+              <span>Purge DB Record</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Actions */}
+        <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+          <div className="text-xs font-mono text-slate-500">
+            Index Ref: {currentListing.githubIndexRef || "normsexchange-gemini/catalog"}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700"
+            >
+              Close
+            </button>
+
+            <button
+              onClick={() => {
+                onClose();
+                onAnalyzeMatch(currentListing);
+              }}
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-cyan-500 px-5 py-2 text-xs font-bold text-slate-950 shadow-md hover:brightness-110"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Match & Sourcing Contract</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+

@@ -1,0 +1,166 @@
+[
+  {
+    "id": "goal-anti-bot-indexing",
+    "title": "Zero-Block Cinema & Optics Site Indexing",
+    "category": "Site Indexing & Sourcing",
+    "description": "Index and extract authentic equipment inventory across 15+ premier film & optical domains (ShareGrid, RedUser, Cinematography.com, MPB, AbelCine) with 100% Anti-Bot WAF bypass.",
+    "targetCount": 15,
+    "currentCount": 12,
+    "unit": "Domains Indexed",
+    "progress": 80,
+    "status": "IN_PROGRESS",
+    "priority": "CRITICAL",
+    "corridor": "LA_TO_VN",
+    "actionLabel": "Run Anti-Bot Sweep (15 Sites)",
+    "actionType": "INDEX_SWEEP",
+    "milestones": [
+      {
+        "id": "m-1",
+        "title": "Target ShareGrid LA & Atlanta feeds",
+        "completed": true,
+        "targetValue": "ShareGrid LA"
+      },
+      {
+        "id": "m-2",
+        "title": "Bypass Cloudflare 403 blocks with Search Grounding",
+        "completed": true,
+        "targetValue": "100% Bypass"
+      },
+      {
+        "id": "m-3",
+        "title": "Index Vietnam surplus (Saigon Cine Rentals & Hanoi Broadcast)",
+        "completed": true,
+        "targetValue": "Vietnam Channels"
+      },
+      {
+        "id": "m-4",
+        "title": "Extract direct rental house & dispersal contacts",
+        "completed": true,
+        "targetValue": "Verified Contacts"
+      },
+      {
+        "id": "m-5",
+        "title": "Complete full 15-domain crawl sweep",
+        "completed": false,
+        "targetValue": "15/15 Domains"
+      }
+    ],
+    "lastExecutedAt": "2026-08-29T00:51:27.356Z"
+  },
+  {
+    "id": "goal-arbitrage-spread",
+    "title": "$150,000 Multi-Corridor Arbitrage Generation",
+    "category": "Market Arbitrage",
+    "description": "Match active WTB buyer demands against scoured WTS inventory to generate bilateral sourcing contracts with minimum $8,000 gross margin per match.",
+    "targetCount": 150000,
+    "currentCount": 114500,
+    "unit": "USD Gross Spread",
+    "progress": 76,
+    "status": "IN_PROGRESS",
+    "priority": "HIGH",
+    "corridor": "LA_TO_VN",
+    "actionLabel": "Compute Arbitrage Matches",
+    "actionType": "ARBITRAGE_EVAL",
+    "milestones": [
+      {
+        "id": "m-arb-1",
+        "title": "Match ARRI Alexa 35 WTB ($78k) vs WTS ($68k) -> $10k spread",
+        "completed": true
+      },
+      {
+        "id": "m-arb-2",
+        "title": "Match Cooke Anamorphic /i Prime Set ($135k vs $122k) -> $13k spread",
+        "completed": true
+      },
+      {
+        "id": "m-arb-3",
+        "title": "Match Sony Venice 2 8K Vietnam studio procurement ($65k vs $58k)",
+        "completed": true
+      },
+      {
+        "id": "m-arb-4",
+        "title": "Reach $150k total active spread pool",
+        "completed": false,
+        "targetValue": "$150,000 USD"
+      }
+    ],
+    "lastExecutedAt": "2026-08-29T00:51:27.356Z"
+  },
+  {
+    "id": "goal-outbox-codex-sync",
+    "title": "Codex & Shopify Outbox Materialization",
+    "category": "Outbox & Codex",
+    "description": "Package verified matches into compliant nx-sourcing-contract v0.2.0 JSON envelopes in outbox/messages/ ready for ingestion by Codex and Shopify runners.",
+    "targetCount": 20,
+    "currentCount": 14,
+    "unit": "Envelopes Synced",
+    "progress": 70,
+    "status": "IN_PROGRESS",
+    "priority": "HIGH",
+    "corridor": "ALL",
+    "actionLabel": "Dispatch Outbox Envelopes",
+    "actionType": "OUTBOX_DISPATCH",
+    "milestones": [
+      {
+        "id": "m-out-1",
+        "title": "Enforce contract-version 0.2.0 schema compatibility",
+        "completed": true
+      },
+      {
+        "id": "m-out-2",
+        "title": "Verify private Codex intake repo bridge (nx-gemini-intake_dev)",
+        "completed": true
+      },
+      {
+        "id": "m-out-3",
+        "title": "Auto-queue trade terms and blameless remedy clauses",
+        "completed": true
+      },
+      {
+        "id": "m-out-4",
+        "title": "Materialize 20 verified contract envelopes",
+        "completed": false,
+        "targetValue": "20 Envelopes"
+      }
+    ],
+    "lastExecutedAt": "2026-08-29T00:51:27.356Z"
+  },
+  {
+    "id": "goal-database-hygiene",
+    "title": "Automated Link Health & Stale Listing Pruning",
+    "category": "Hygiene & Audit",
+    "description": "Audit all 1,000 active equipment records against external origin links, pruning dead stock, 404 URLs, and sold listings with zero manual intervention.",
+    "targetCount": 1000,
+    "currentCount": 1000,
+    "unit": "Records Audited",
+    "progress": 100,
+    "status": "COMPLETED",
+    "priority": "MEDIUM",
+    "corridor": "ALL",
+    "actionLabel": "Audit & Prune Database",
+    "actionType": "PRUNE_DATABASE",
+    "milestones": [
+      {
+        "id": "m-prn-1",
+        "title": "Execute link verification on all catalog entries",
+        "completed": true
+      },
+      {
+        "id": "m-prn-2",
+        "title": "Soft-archive delisted items (404 Not Found)",
+        "completed": true
+      },
+      {
+        "id": "m-prn-3",
+        "title": "Mark completed trades as Sold",
+        "completed": true
+      },
+      {
+        "id": "m-prn-4",
+        "title": "Maintain 0 dead links across active listings",
+        "completed": true
+      }
+    ],
+    "lastExecutedAt": "2026-08-29T00:51:27.357Z"
+  }
+]
